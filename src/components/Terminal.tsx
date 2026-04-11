@@ -235,7 +235,7 @@ export default function Terminal() {
           )}
 
           {booted && (
-            <div className="flex items-center">
+            <div className="relative flex items-center" dir="ltr">
               <Prompt cwd={cwd}>
                 <span className="text-term">{input}</span>
                 {suggestion && (
@@ -250,13 +250,17 @@ export default function Terminal() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={onKeyDown}
-                className="caret-hidden absolute opacity-0 w-0 h-0"
-                autoFocus
+                dir="ltr"
+                type="text"
+                inputMode="text"
+                enterKeyHint="go"
                 autoComplete="off"
                 autoCorrect="off"
                 autoCapitalize="off"
                 spellCheck={false}
                 aria-label="terminal input"
+                className="absolute inset-0 w-full h-full bg-transparent text-transparent caret-transparent border-0 outline-none p-0 m-0 select-none"
+                style={{ WebkitTextFillColor: "transparent" }}
               />
             </div>
           )}
