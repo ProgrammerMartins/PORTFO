@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --term-bg: #0a0e14;
+  --term-panel: #0d1117;
+  --term-border: #1f2933;
+  --term-text: #c9d1d9;
+  --term-dim: #7d8590;
+  --term-accent: #00ff9c;
+  --term-cyan: #22d3ee;
+  --term-purple: #a78bfa;
+  --term-pink: #ff5cf4;
+}
+
+:root[data-theme="neon"] {
+  --term-bg: #0b0320;
+  --term-panel: #120636;
+  --term-border: #3a1065;
+  --term-text: #f5d0ff;
+  --term-dim: #a78bfa;
+  --term-accent: #ff5cf4;
+  --term-cyan: #22d3ee;
+  --term-purple: #c084fc;
+  --term-pink: #ff3df0;
+}
+
+:root[data-theme="matrix"] {
+  --term-bg: #000000;
+  --term-panel: #020a02;
+  --term-border: #0f3a0f;
+  --term-text: #9effa0;
+  --term-dim: #4bd14b;
+  --term-accent: #00ff41;
+  --term-cyan: #00ff41;
+  --term-purple: #00cc33;
+  --term-pink: #66ff66;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: "JetBrains Mono", "Fira Code", Menlo, Monaco, Consolas, monospace;
+  background: var(--term-bg);
+  color: var(--term-text);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+::selection {
+  background: var(--term-accent);
+  color: var(--term-bg);
+}
+
+/* Scrollbar */
+.term-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.term-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.term-scroll::-webkit-scrollbar-thumb {
+  background: var(--term-border);
+  border-radius: 4px;
+}
+.term-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--term-dim);
+}
+
+/* CRT / scanlines overlay */
+.crt::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.02) 0px,
+    rgba(255, 255, 255, 0.02) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  z-index: 50;
+  mix-blend-mode: overlay;
+}
+
+.crt::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 40%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+  z-index: 49;
+}
+
+.scan-line {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(0, 255, 156, 0.06),
+    transparent
+  );
+  pointer-events: none;
+  z-index: 48;
+}
+
+/* Themed color utilities bound to CSS vars so theme switching just works */
+.text-accent { color: var(--term-accent); }
+.text-cyan { color: var(--term-cyan); }
+.text-purple { color: var(--term-purple); }
+.text-pink { color: var(--term-pink); }
+.text-dim { color: var(--term-dim); }
+.text-term { color: var(--term-text); }
+.bg-term { background-color: var(--term-bg); }
+.bg-panel { background-color: var(--term-panel); }
+.border-term { border-color: var(--term-border); }
+
+.glow-accent {
+  text-shadow: 0 0 8px var(--term-accent), 0 0 18px rgba(0, 255, 156, 0.35);
+}
+.glow-cyan {
+  text-shadow: 0 0 6px var(--term-cyan), 0 0 16px rgba(34, 211, 238, 0.35);
+}
+.glow-purple {
+  text-shadow: 0 0 6px var(--term-purple), 0 0 16px rgba(167, 139, 250, 0.35);
+}
+
+.cursor-block {
+  display: inline-block;
+  width: 9px;
+  height: 18px;
+  background: var(--term-accent);
+  box-shadow: 0 0 10px var(--term-accent);
+  transform: translateY(3px);
+  margin-left: 2px;
+}
+
+.ascii {
+  white-space: pre;
+  line-height: 1.05;
+  font-size: 11px;
+}
+
+@media (min-width: 640px) {
+  .ascii {
+    font-size: 13px;
+  }
+}
+
+/* hide default focus rings on the hidden input */
+input.caret-hidden:focus {
+  outline: none;
+}

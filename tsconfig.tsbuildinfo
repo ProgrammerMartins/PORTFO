@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/types.ts","./src/vite-env.d.ts","./src/components/bootsequence.tsx","./src/components/prompt.tsx","./src/components/terminal.tsx","./src/components/typingeffect.tsx","./src/data/portfolio.ts","./src/lib/commandhandler.tsx"],"version":"5.9.3"}
