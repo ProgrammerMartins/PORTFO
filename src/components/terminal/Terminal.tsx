@@ -10,10 +10,10 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import Prompt from "./Prompt";
 import BootSequence from "./BootSequence";
-import { commandNames, runCommand } from "../lib/CommandHandler";
-import type { TerminalLine, Theme } from "../types";
+import { commandNames, runCommand } from "../../lib/CommandHandler";
+import type { TerminalLine, Theme } from "../../types";
 
-const STORAGE_THEME = "martins.theme";
+const STORAGE_THEME = "martins.term-theme";
 
 export default function Terminal() {
   const [booted, setBooted] = useState(false);
@@ -27,18 +27,17 @@ export default function Terminal() {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const lineId = useRef(0);
 
   /* ---------- theme bootstrapping ---------- */
   useEffect(() => {
     const saved = (localStorage.getItem(STORAGE_THEME) as Theme) || "dark";
     setThemeState(saved);
-    document.documentElement.setAttribute("data-theme", saved);
   }, []);
 
   const setTheme = useCallback((t: Theme) => {
     setThemeState(t);
-    document.documentElement.setAttribute("data-theme", t);
     localStorage.setItem(STORAGE_THEME, t);
   }, []);
 
@@ -48,11 +47,13 @@ export default function Terminal() {
     if (el) el.scrollTop = el.scrollHeight;
   }, [lines, booted]);
 
-  /* ---------- focus management ---------- */
+  /* ---------- focus management (scoped to terminal container) ---------- */
   useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
     const handler = () => inputRef.current?.focus();
-    window.addEventListener("click", handler);
-    return () => window.removeEventListener("click", handler);
+    el.addEventListener("click", handler);
+    return () => el.removeEventListener("click", handler);
   }, []);
 
   useEffect(() => {
@@ -71,7 +72,6 @@ export default function Terminal() {
     (raw: string) => {
       const trimmed = raw.trim();
 
-      // Echo the prompt + command the user typed
       pushLine(
         <Prompt cwd={cwd}>
           <span className="text-term">{raw}</span>
@@ -113,36 +113,33 @@ export default function Terminal() {
 
   /* ---------- key handling ---------- */
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    // Ctrl+L → clear
     if (e.ctrlKey && e.key.toLowerCase() === "l") {
       e.preventDefault();
       clear();
       return;
     }
-
     if (e.key === "Enter") {
       e.preventDefault();
       execute(input);
       setInput("");
       return;
     }
-
     if (e.key === "Tab") {
       e.preventDefault();
       if (suggestion) setInput(suggestion);
       return;
     }
-
     if (e.key === "ArrowUp") {
       e.preventDefault();
       if (!history.length) return;
       const next =
-        historyIndex === null ? history.length - 1 : Math.max(0, historyIndex - 1);
+        historyIndex === null
+          ? history.length - 1
+          : Math.max(0, historyIndex - 1);
       setHistoryIndex(next);
       setInput(history[next] ?? "");
       return;
     }
-
     if (e.key === "ArrowDown") {
       e.preventDefault();
       if (historyIndex === null) return;
@@ -166,35 +163,40 @@ export default function Terminal() {
       pushLine(
         <div>
           <div className="text-cyan glow-cyan">
-            session established · {new Date().toLocaleString()}
+            session established &middot; {new Date().toLocaleString()}
           </div>
           <div className="text-dim">
             type <span className="text-accent glow-accent">help</span> to see
-            available commands · try{" "}
-            <span className="text-accent">about</span>,{" "}
-            <span className="text-accent">skills</span>,{" "}
-            <span className="text-accent">projects</span>
+            available commands
           </div>
         </div>,
       );
     }
   }, [booted, pushLine]);
 
+  /* ---------- theme class for terminal container ---------- */
+  const themeClass =
+    theme === "neon"
+      ? "[--term-bg:#0b0320] [--term-panel:#120636] [--term-border:#3a1065] [--term-text:#f5d0ff] [--term-dim:#a78bfa] [--term-accent:#ff5cf4] [--term-cyan:#22d3ee] [--term-purple:#c084fc] [--term-pink:#ff3df0]"
+      : theme === "matrix"
+      ? "[--term-bg:#000] [--term-panel:#020a02] [--term-border:#0f3a0f] [--term-text:#9effa0] [--term-dim:#4bd14b] [--term-accent:#00ff41] [--term-cyan:#00ff41] [--term-purple:#00cc33] [--term-pink:#66ff66]"
+      : "[--term-bg:#0a0e14] [--term-panel:#0d1117] [--term-border:#1f2933] [--term-text:#c9d1d9] [--term-dim:#7d8590] [--term-accent:#00ff9c] [--term-cyan:#22d3ee] [--term-purple:#a78bfa] [--term-pink:#ff5cf4]";
+
   /* ---------- header ---------- */
   const header = useMemo(
     () => (
-      <div className="flex items-center justify-between px-4 py-2 border-b border-term bg-panel backdrop-blur-sm">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-term bg-panel">
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-[#ff5f56] inline-block" />
           <span className="w-3 h-3 rounded-full bg-[#ffbd2e] inline-block" />
           <span className="w-3 h-3 rounded-full bg-[#27c93f] inline-block" />
         </div>
-        <div className="text-dim text-xs sm:text-sm tracking-wider">
-          martins@portfolio — zsh — {cwd.length ? "~/" + cwd.join("/") : "~"}
+        <div className="text-dim text-xs sm:text-sm tracking-wider font-mono">
+          martins@portfolio &mdash; zsh &mdash;{" "}
+          {cwd.length ? "~/" + cwd.join("/") : "~"}
         </div>
-        <div className="text-dim text-xs hidden sm:block">
-          theme:{" "}
-          <span className="text-accent glow-accent">{theme}</span>
+        <div className="text-dim text-xs hidden sm:block font-mono">
+          theme: <span className="text-accent glow-accent">{theme}</span>
         </div>
       </div>
     ),
@@ -202,14 +204,13 @@ export default function Terminal() {
   );
 
   return (
-    <div className="crt h-full w-full p-2 sm:p-6 flex items-stretch justify-center">
+    <div
+      ref={containerRef}
+      className={`relative crt w-full font-mono rounded-2xl overflow-hidden border border-surface-300/40 shadow-glow-card glow-box ${themeClass}`}
+      style={{ height: "min(70vh, 560px)" }}
+    >
       <div className="scan-line animate-scan" />
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="relative w-full max-w-5xl h-full bg-panel border border-term rounded-xl shadow-glow-strong overflow-hidden flex flex-col"
-      >
+      <div className="relative w-full h-full bg-panel flex flex-col rounded-2xl overflow-hidden">
         {header}
 
         <div
@@ -266,7 +267,7 @@ export default function Terminal() {
           )}
         </div>
 
-        {/* mobile quick-commands bar */}
+        {/* mobile quick-commands */}
         <div className="sm:hidden border-t border-term bg-panel flex overflow-x-auto gap-2 px-3 py-2 text-xs">
           {["help", "about", "skills", "projects", "contact", "theme", "clear"].map(
             (c) => (
@@ -283,7 +284,7 @@ export default function Terminal() {
             ),
           )}
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

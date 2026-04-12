@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import TypingEffect from "./TypingEffect";
-import { asciiName } from "../data/portfolio";
+import { asciiName } from "../../data/portfolio";
 
 type Props = { onDone: () => void };
 
