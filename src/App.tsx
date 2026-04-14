@@ -10,7 +10,7 @@ import Contact from "./components/sections/Contact";
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-surface dot-grid">
+    <div className="min-h-screen bg-white dark:bg-surface dot-grid transition-colors duration-300">
       <Navbar />
       <main>
         <Hero />

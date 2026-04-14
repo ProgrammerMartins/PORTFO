@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Theme variables ─── */
+/* ─── Theme variables (terminal only) ─── */
 :root {
   --term-bg: #0a0e14;
   --term-panel: #0d1117;
@@ -57,10 +57,21 @@ body,
 body {
   font-family: "Inter", "SF Pro", -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
-  background: #050810;
-  color: #e2e8f0;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* Light mode (default HTML without .dark) */
+html:not(.dark) body {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+/* Dark mode */
+html.dark body {
+  background: #050810;
+  color: #e2e8f0;
 }
 
 ::selection {
@@ -71,9 +82,12 @@ body {
 /* ─── Scrollbar ─── */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #334155; }
+html.dark ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+html.dark ::-webkit-scrollbar-thumb:hover { background: #334155; }
+html:not(.dark) ::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+html:not(.dark) ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
 
+/* Terminal-scoped scrollbar (always dark — stays dark inside terminal) */
 .term-scroll::-webkit-scrollbar { width: 6px; }
 .term-scroll::-webkit-scrollbar-track { background: transparent; }
 .term-scroll::-webkit-scrollbar-thumb { background: var(--term-border); border-radius: 4px; }
@@ -86,30 +100,48 @@ body {
   @apply text-3xl sm:text-4xl font-bold mb-4 tracking-tight;
 }
 .section-sub {
-  @apply text-slate-400 text-base sm:text-lg max-w-2xl mb-12;
+  @apply text-base sm:text-lg max-w-2xl mb-12;
 }
+html.dark .section-sub { color: #94a3b8; }
+html:not(.dark) .section-sub { color: #475569; }
 
 /* ─── Grid backdrop dots ─── */
-.dot-grid {
+html.dark .dot-grid {
   background-image: radial-gradient(circle, #1e293b 1px, transparent 1px);
   background-size: 24px 24px;
 }
+html:not(.dark) .dot-grid {
+  background-image: radial-gradient(circle, #e2e8f0 1px, transparent 1px);
+  background-size: 24px 24px;
+}
 
-/* ─── Glow accents ─── */
-.glow-accent {
+/* ─── Glow accents (much softer in light mode) ─── */
+html.dark .glow-accent {
   text-shadow: 0 0 8px #00ff9c, 0 0 18px rgba(0, 255, 156, 0.35);
 }
-.glow-cyan {
+html:not(.dark) .glow-accent {
+  text-shadow: none;
+}
+html.dark .glow-cyan {
   text-shadow: 0 0 6px #22d3ee, 0 0 16px rgba(34, 211, 238, 0.35);
 }
-.glow-purple {
+html:not(.dark) .glow-cyan {
+  text-shadow: none;
+}
+html.dark .glow-purple {
   text-shadow: 0 0 6px #a78bfa, 0 0 16px rgba(167, 139, 250, 0.35);
 }
-.glow-box {
+html:not(.dark) .glow-purple {
+  text-shadow: none;
+}
+html.dark .glow-box {
   box-shadow: 0 0 30px rgba(0, 255, 156, 0.12), 0 0 60px rgba(0, 255, 156, 0.06);
 }
+html:not(.dark) .glow-box {
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+}
 
-/* ─── Terminal-specific classes (scoped inside the terminal) ─── */
+/* ─── Terminal classes (scoped inside terminal — theme-agnostic) ─── */
 .text-accent { color: var(--term-accent); }
 .text-cyan { color: var(--term-cyan); }
 .text-purple { color: var(--term-purple); }

@@ -11,7 +11,7 @@ const statItems = [
 export default function About() {
   return (
     <section id="about" className="section relative">
-      <div className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-purple-500/5 blur-[120px] pointer-events-none" />
+      <div className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-purple-300/15 dark:bg-purple-500/5 blur-[120px] pointer-events-none" />
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}
@@ -19,10 +19,15 @@ export default function About() {
         viewport={{ once: true, margin: "-100px" }}
         transition={{ duration: 0.6 }}
       >
-        <p className="font-mono text-brand text-sm mb-2">01. About</p>
-        <h2 className="section-title text-white">
+        <p className="font-mono text-emerald-600 dark:text-brand text-sm mb-2">
+          01. About
+        </p>
+        <h2 className="section-title text-slate-900 dark:text-white">
           Who is{" "}
-          <span className="text-brand glow-accent">{identity.name}</span>?
+          <span className="text-emerald-600 dark:text-brand dark:glow-accent">
+            {identity.name}
+          </span>
+          ?
         </h2>
       </motion.div>
 
@@ -36,7 +41,10 @@ export default function About() {
         >
           {about.map((line, i) =>
             line ? (
-              <p key={i} className="text-slate-400 leading-relaxed text-base sm:text-lg">
+              <p
+                key={i}
+                className="text-slate-700 dark:text-slate-400 leading-relaxed text-base sm:text-lg"
+              >
                 {line}
               </p>
             ) : null,
@@ -53,12 +61,9 @@ export default function About() {
           {statItems.map((s) => (
             <div
               key={s.label}
-              className="rounded-xl bg-surface-100/60 border border-surface-300/40 p-5 text-center hover:border-brand/30 transition-colors"
+              className="rounded-xl bg-white dark:bg-surface-100/60 border border-slate-200 dark:border-surface-300/40 p-5 text-center hover:border-emerald-500/40 dark:hover:border-brand/30 transition-colors shadow-sm dark:shadow-none"
             >
-              <div
-                className="text-3xl sm:text-4xl font-bold text-brand font-mono"
-                style={{ textShadow: "0 0 16px rgba(0,255,156,0.25)" }}
-              >
+              <div className="text-3xl sm:text-4xl font-bold text-emerald-600 dark:text-brand font-mono dark:glow-accent">
                 {s.value}
               </div>
               <div className="text-slate-500 text-xs sm:text-sm mt-1">
