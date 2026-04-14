@@ -3,7 +3,7 @@ import { contact } from "../../data/portfolio";
 export default function Footer() {
   return (
     <footer className="border-t border-slate-200 dark:border-surface-300/30 bg-slate-50/60 dark:bg-surface-50/50">
-      <div className="max-w-6xl mx-auto px-5 sm:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-8 sm:py-10 flex flex-col sm:flex-row items-center justify-between gap-5 sm:gap-4 text-xs sm:text-sm text-slate-500 text-center sm:text-left">
         <div>
           <span className="text-emerald-600 dark:text-brand font-mono font-semibold">
             martins
@@ -11,7 +11,7 @@ export default function Footer() {
           &copy; {new Date().getFullYear()}. Built with React, TypeScript &amp;
           coffee.
         </div>
-        <div className="flex items-center gap-6">
+        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
           <a
             href={`mailto:${contact.email}`}
             className="hover:text-emerald-600 dark:hover:text-brand transition-colors"

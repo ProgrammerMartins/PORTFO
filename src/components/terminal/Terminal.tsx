@@ -185,17 +185,18 @@ export default function Terminal() {
   /* ---------- header ---------- */
   const header = useMemo(
     () => (
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-term bg-panel">
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-[#ff5f56] inline-block" />
-          <span className="w-3 h-3 rounded-full bg-[#ffbd2e] inline-block" />
-          <span className="w-3 h-3 rounded-full bg-[#27c93f] inline-block" />
+      <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2.5 border-b border-term bg-panel">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#ff5f56] inline-block" />
+          <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#ffbd2e] inline-block" />
+          <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#27c93f] inline-block" />
         </div>
-        <div className="text-dim text-xs sm:text-sm tracking-wider font-mono">
-          martins@portfolio &mdash; zsh &mdash;{" "}
+        <div className="text-dim text-[10px] sm:text-sm tracking-wider font-mono truncate min-w-0">
+          <span className="hidden sm:inline">martins@portfolio &mdash; zsh &mdash; </span>
+          <span className="sm:hidden">zsh — </span>
           {cwd.length ? "~/" + cwd.join("/") : "~"}
         </div>
-        <div className="text-dim text-xs hidden sm:block font-mono">
+        <div className="text-dim text-xs hidden sm:block font-mono shrink-0">
           theme: <span className="text-accent glow-accent">{theme}</span>
         </div>
       </div>
@@ -206,8 +207,8 @@ export default function Terminal() {
   return (
     <div
       ref={containerRef}
-      className={`relative crt w-full font-mono rounded-2xl overflow-hidden border border-surface-300/40 shadow-glow-card glow-box ${themeClass}`}
-      style={{ height: "min(70vh, 560px)" }}
+      className={`relative crt w-full font-mono rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200 dark:border-surface-300/40 shadow-lg dark:shadow-glow-card glow-box ${themeClass}`}
+      style={{ height: "min(70vh, 560px)", minHeight: "400px" }}
     >
       <div className="scan-line animate-scan" />
       <div className="relative w-full h-full bg-panel flex flex-col rounded-2xl overflow-hidden">
@@ -215,7 +216,7 @@ export default function Terminal() {
 
         <div
           ref={scrollRef}
-          className="term-scroll flex-1 overflow-y-auto px-4 sm:px-6 py-4 text-[13px] sm:text-[14px] leading-relaxed"
+          className="term-scroll flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-6 py-3 sm:py-4 text-[12px] sm:text-[14px] leading-relaxed break-words"
         >
           {!booted && <BootSequence onDone={() => setBooted(true)} />}
 

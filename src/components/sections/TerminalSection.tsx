@@ -3,7 +3,7 @@ import Terminal from "../terminal/Terminal";
 
 export default function TerminalSection() {
   return (
-    <section id="terminal" className="section relative">
+    <section id="terminal" className="section relative overflow-hidden">
       <div className="absolute -top-40 right-0 w-[500px] h-[500px] rounded-full bg-emerald-300/10 dark:bg-brand/5 blur-[120px] pointer-events-none" />
 
       <motion.div

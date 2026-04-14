@@ -10,7 +10,7 @@ const statItems = [
 
 export default function About() {
   return (
-    <section id="about" className="section relative">
+    <section id="about" className="section relative overflow-hidden">
       <div className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-purple-300/15 dark:bg-purple-500/5 blur-[120px] pointer-events-none" />
 
       <motion.div
@@ -31,7 +31,7 @@ export default function About() {
         </h2>
       </motion.div>
 
-      <div className="grid lg:grid-cols-5 gap-12 items-start">
+      <div className="grid lg:grid-cols-5 gap-8 sm:gap-12 items-start">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -61,12 +61,12 @@ export default function About() {
           {statItems.map((s) => (
             <div
               key={s.label}
-              className="rounded-xl bg-white dark:bg-surface-100/60 border border-slate-200 dark:border-surface-300/40 p-5 text-center hover:border-emerald-500/40 dark:hover:border-brand/30 transition-colors shadow-sm dark:shadow-none"
+              className="rounded-xl bg-white dark:bg-surface-100/60 border border-slate-200 dark:border-surface-300/40 p-4 sm:p-5 text-center hover:border-emerald-500/40 dark:hover:border-brand/30 transition-colors shadow-sm dark:shadow-none"
             >
-              <div className="text-3xl sm:text-4xl font-bold text-emerald-600 dark:text-brand font-mono dark:glow-accent">
+              <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-emerald-600 dark:text-brand font-mono dark:glow-accent break-words">
                 {s.value}
               </div>
-              <div className="text-slate-500 text-xs sm:text-sm mt-1">
+              <div className="text-slate-500 text-[11px] sm:text-xs mt-1">
                 {s.label}
               </div>
             </div>

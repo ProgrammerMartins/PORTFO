@@ -3,7 +3,7 @@ import { contact, identity } from "../../data/portfolio";
 
 export default function Contact() {
   return (
-    <section id="contact" className="section relative text-center">
+    <section id="contact" className="section relative text-center overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-emerald-300/15 dark:bg-brand/5 blur-[120px] pointer-events-none" />
 
       <motion.div
@@ -31,7 +31,7 @@ export default function Contact() {
           Say hello &rarr;
         </a>
 
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-sm">
+        <div className="mt-10 sm:mt-12 grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center gap-5 sm:gap-10 text-sm">
           {[
             {
               label: "Email",
@@ -64,7 +64,7 @@ export default function Contact() {
               <span className="text-slate-500 text-xs font-mono">
                 {c.label}
               </span>
-              <span className="text-slate-700 dark:text-slate-300 group-hover:text-emerald-600 dark:group-hover:text-brand transition-colors">
+              <span className="text-slate-700 dark:text-slate-300 group-hover:text-emerald-600 dark:group-hover:text-brand transition-colors text-xs sm:text-sm break-all text-center">
                 {c.value}
               </span>
             </a>

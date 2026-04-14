@@ -59,7 +59,13 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  width: 100%;
   transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* Prevent any nested element from breaking the viewport */
+html, body {
+  max-width: 100%;
 }
 
 /* Light mode (default HTML without .dark) */
@@ -94,13 +100,13 @@ html:not(.dark) ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
 
 /* ─── Section utilities ─── */
 .section {
-  @apply px-5 sm:px-8 lg:px-0 max-w-6xl mx-auto py-20 sm:py-28;
+  @apply px-4 sm:px-6 lg:px-10 max-w-6xl mx-auto py-16 sm:py-24 lg:py-28;
 }
 .section-title {
-  @apply text-3xl sm:text-4xl font-bold mb-4 tracking-tight;
+  @apply text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 tracking-tight;
 }
 .section-sub {
-  @apply text-base sm:text-lg max-w-2xl mb-12;
+  @apply text-sm sm:text-base lg:text-lg max-w-2xl mb-10 sm:mb-12;
 }
 html.dark .section-sub { color: #94a3b8; }
 html:not(.dark) .section-sub { color: #475569; }

@@ -29,7 +29,7 @@ const colorMap: Record<
 
 export default function Skills() {
   return (
-    <section id="skills" className="section relative">
+    <section id="skills" className="section relative overflow-hidden">
       <div className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-cyan-300/15 dark:bg-cyan-500/5 blur-[120px] pointer-events-none" />
 
       <motion.div
@@ -49,7 +49,7 @@ export default function Skills() {
         </p>
       </motion.div>
 
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid md:grid-cols-3 gap-4 sm:gap-6">
         {skills.map((group, gi) => {
           const c = colorMap[group.color] ?? colorMap.accent;
           return (
@@ -59,7 +59,7 @@ export default function Skills() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.5, delay: gi * 0.12 }}
-              className={`rounded-2xl ${c.bg} border ${c.border} p-6 shadow-sm dark:shadow-none transition-shadow`}
+              className={`rounded-xl sm:rounded-2xl ${c.bg} border ${c.border} p-5 sm:p-6 shadow-sm dark:shadow-none transition-shadow`}
             >
               <div className="flex items-center gap-3 mb-5">
                 <span className="text-xl">{group.icon}</span>
