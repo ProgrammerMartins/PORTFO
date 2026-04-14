@@ -155,7 +155,7 @@ export const experience = [
 ];
 
 export const contact = {
-  email: "ProgrammerMartins",
+  email: "ProgrammerMartins@gmail.com",
   github: "github.com/ProgrammerMartins",
   twitter: "@programmer_mtns",
   linkedin: "linkedin.com/in/programmer-martins",
