@@ -10,6 +10,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import Prompt from "./Prompt";
 import BootSequence from "./BootSequence";
+import TypedOutput from "./TypedOutput";
 import { commandNames, runCommand } from "../../lib/CommandHandler";
 import type { TerminalLine, Theme } from "../../types";
 
@@ -41,10 +42,18 @@ export default function Terminal() {
     localStorage.setItem(STORAGE_THEME, t);
   }, []);
 
-  /* ---------- scrolling ---------- */
+  /* ---------- scrolling: follow content as it grows (typing reveal) ---------- */
   useEffect(() => {
     const el = scrollRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    if (!el) return;
+    const scrollDown = () => {
+      el.scrollTop = el.scrollHeight;
+    };
+    scrollDown();
+    const ro = new ResizeObserver(scrollDown);
+    // observe inner content so we catch the height animation of TypedOutput
+    Array.from(el.children).forEach((c) => ro.observe(c));
+    return () => ro.disconnect();
   }, [lines, booted]);
 
   /* ---------- focus management (scoped to terminal container) ---------- */
@@ -91,7 +100,13 @@ export default function Terminal() {
       };
 
       const { node } = runCommand(trimmed, ctx);
-      if (node) pushLine(<div className="pl-0 py-1">{node}</div>, true);
+      if (node)
+        pushLine(
+          <TypedOutput>
+            <div className="pl-0 py-1">{node}</div>
+          </TypedOutput>,
+          true,
+        );
 
       setHistory((h) => (h[h.length - 1] === trimmed ? h : [...h, trimmed]));
       setHistoryIndex(null);
