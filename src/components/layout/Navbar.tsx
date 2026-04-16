@@ -73,6 +73,17 @@ export default function Navbar() {
               {l.label}
             </a>
           ))}
+          <button
+            onClick={() => {
+              const ev = new KeyboardEvent("keydown", { key: "k", ctrlKey: true });
+              window.dispatchEvent(ev);
+            }}
+            aria-label="open command palette"
+            className="flex items-center gap-2 px-2.5 py-1 rounded-md border border-slate-200 dark:border-surface-300/50 text-slate-500 hover:text-emerald-600 dark:hover:text-brand hover:border-emerald-400/60 dark:hover:border-brand/40 transition-colors"
+          >
+            <span className="text-xs">Search</span>
+            <kbd className="font-mono text-[10px]">⌘K</kbd>
+          </button>
           <ThemeToggle />
         </div>
 

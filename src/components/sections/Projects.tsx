@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { projects } from "../../data/portfolio";
+import { projects, type Project } from "../../data/portfolio";
+import CaseStudyModal from "../projects/CaseStudyModal";
 
 const statusColor: Record<string, string> = {
   shipped:
@@ -11,6 +13,7 @@ const statusColor: Record<string, string> = {
 };
 
 export default function Projects() {
+  const [active, setActive] = useState<Project | null>(null);
   return (
     <section id="projects" className="section relative overflow-hidden">
       <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-emerald-300/15 dark:bg-brand/5 blur-[120px] pointer-events-none" />
@@ -86,9 +89,20 @@ export default function Projects() {
                 </span>
               ))}
             </div>
+
+            {p.caseStudy && (
+              <button
+                onClick={() => setActive(p)}
+                className="mt-5 inline-flex items-center gap-1.5 font-mono text-xs text-emerald-600 dark:text-brand hover:gap-2.5 transition-all"
+              >
+                Read case study <span aria-hidden>&rarr;</span>
+              </button>
+            )}
           </motion.div>
         ))}
       </div>
+
+      <CaseStudyModal project={active} onClose={() => setActive(null)} />
     </section>
   );
 }

@@ -64,6 +64,14 @@ export const skills: SkillGroup[] = [
   },
 ];
 
+export type CaseStudy = {
+  problem: string;
+  approach: string[];
+  decisions: { title: string; body: string }[];
+  metrics: { label: string; value: string }[];
+  stackNotes: { label: string; why: string }[];
+};
+
 export type Project = {
   id: string;
   name: string;
@@ -71,6 +79,7 @@ export type Project = {
   summary: string;
   highlights: string[];
   status: "shipped" | "building" | "prototype";
+  caseStudy?: CaseStudy;
 };
 
 export const projects: Project[] = [
@@ -86,6 +95,58 @@ export const projects: Project[] = [
       "Prompt cache layer cut token costs by ~60%",
     ],
     status: "shipped",
+    caseStudy: {
+      problem:
+        "I kept writing fragments — half-thoughts in Notion, TODOs in Obsidian, voice memos in my phone. None of them talked to each other. I wanted one place that could read the whole graph, find the through-line, and surface the idea I was circling around without me having to remember where I wrote it down.",
+      approach: [
+        "Ingest notes as plain markdown and chunk them by heading + paragraph, not by token count.",
+        "Embed chunks with OpenAI text-embedding-3-small and store vectors locally in IndexedDB — no server needed for a personal tool.",
+        "At query time, retrieve top-k chunks, assemble a compact context window, and stream a summarization back into the UI.",
+        "Cache prompt prefixes aggressively — the system prompt and retrieved context rarely change between follow-ups.",
+      ],
+      decisions: [
+        {
+          title: "Local-first over cloud sync",
+          body: "Vector store lives in IndexedDB. No account, no backend, no privacy worry. Sync is a separate concern I chose not to solve on v1.",
+        },
+        {
+          title: "Streaming over wait-and-render",
+          body: "Users tolerate slow AI if they see progress. I ship the first token in <400ms and optimistically render markdown as it arrives — hashes become headings before the stream is done.",
+        },
+        {
+          title: "Prompt cache, not result cache",
+          body: "Caching final outputs breaks the minute wording changes. Caching the prefix (system + retrieved context) hits on every follow-up in a session — that's where the 60% token savings came from.",
+        },
+        {
+          title: "Chunk by structure, not size",
+          body: "Fixed-size chunking shreds ideas mid-sentence. Splitting on markdown headings preserves semantic units — retrieval quality jumped noticeably once I switched.",
+        },
+      ],
+      metrics: [
+        { label: "Token cost", value: "↓ ~60%" },
+        { label: "First token", value: "<400ms" },
+        { label: "Retrieval quality", value: "↑ ~40%" },
+        { label: "Bundle size", value: "112kb gz" },
+      ],
+      stackNotes: [
+        {
+          label: "React + TypeScript",
+          why: "Strict types caught more bugs than any test I wrote. Streaming state machines especially.",
+        },
+        {
+          label: "OpenAI Embeddings + GPT-4o-mini",
+          why: "Cheap embeddings, capable-enough model. Swapping for Claude was a one-file change — provider-agnostic adapter.",
+        },
+        {
+          label: "IndexedDB via idb-keyval",
+          why: "Zero-config persistence. Handles 10k+ vectors without a backend. Tiny footprint.",
+        },
+        {
+          label: "Tailwind + CSS vars",
+          why: "Design tokens live in CSS so themes swap without re-rendering React.",
+        },
+      ],
+    },
   },
   {
     id: "02",
