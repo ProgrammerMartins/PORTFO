@@ -28,13 +28,15 @@ const STOPWORDS = new Set([
   "a","an","and","are","as","at","be","by","for","from","has","have","he",
   "his","her","i","in","is","it","its","of","on","or","that","the","to",
   "was","were","will","with","you","your","me","my","mine","do","does",
-  "did","can","could","would","should","there","here","this","these","those",
-  "am","so","but","if","then","than","what","which","who","whom","how",
-  "why","when","where","about","into","out","up","down","over","under",
+  "did","can","could","would","there","here","this","these","those",
+  "am","so","but","if","then","than","what","which","who","whom",
+  "when","where","about","into","out","up","down","over","under",
   "also","just","some","any","all","no","not","yes","ok","okay","im","ive",
   "hes","shes","theyre","youre","tell","show","give","know","like","want",
   "need","please","hi","hey","hello",
 ]);
+// note: "why", "should", "how" are intentionally NOT stopwords — they
+// signal evaluative / pitch-style questions ("why should I hire him?").
 
 /** ultra-light Porter-ish stemmer: enough to collapse common variants. */
 function stem(w: string): string {
@@ -79,7 +81,7 @@ function tokenize(s: string): string[] {
 /** Each entry: all these terms (stemmed) count as the key term. */
 const SYNONYMS: Record<string, string[]> = {
   hire: ["hire", "hiring", "avail", "freelanc", "work", "contract", "job", "open", "gig", "client", "engag"],
-  skill: ["skill", "stack", "tech", "tool", "expert", "good", "strength", "fluent", "proficient"],
+  skill: ["skill", "stack", "tech", "tool", "expert", "fluent", "proficient"],
   project: ["project", "build", "ship", "made", "work", "portfolio", "product", "app"],
   contact: ["contact", "email", "reach", "dm", "message", "mail", "talk", "connect"],
   social: ["github", "twitter", "x", "linkedin", "social"],
@@ -90,6 +92,11 @@ const SYNONYMS: Record<string, string[]> = {
   experience: ["experi", "career", "history", "journey", "past", "resum", "cv", "year"],
   stats: ["stat", "number", "metric", "mani", "count", "lines", "code", "coffee", "bug"],
   greet: ["hi", "hey", "hello", "yo", "sup", "gm", "greeting", "howdy"],
+  // evaluative / pitch signals — "why should i hire him", "sell me on him",
+  // "what makes him different", "describe him", "is he the best", etc.
+  pitch: ["why", "should", "pitch", "sell", "convince", "best", "strength",
+          "differ", "special", "uniqu", "stand", "amaz", "awesom", "describ",
+          "impress", "compel", "reason", "recomm"],
 };
 
 /** Reverse index: stemmed-token → canonical concept keys it hits. */
@@ -123,6 +130,7 @@ type Intent =
   | "hire"
   | "ai"
   | "stats"
+  | "pitch"
   | "fallback";
 
 /** Per-intent weighted concept bag. Higher = stronger signal. */
@@ -136,6 +144,8 @@ const INTENT_WEIGHTS: Record<Exclude<Intent, "fallback" | "project-detail">, Rec
   hire: { hire: 3, contact: 0.5 },
   ai: { ai: 3 },
   stats: { stats: 3 },
+  // pitch outranks hire when both fire — "why should I hire him" is a pitch.
+  pitch: { pitch: 3, hire: 1.5 },
 };
 
 function scoreIntent(concepts: Set<string>, weights: Record<string, number>): number {
@@ -313,6 +323,142 @@ function describeProject(p: (typeof projects)[number]): string {
   return `${p.name} — ${p.summary}\n\nStack: ${p.stack.join(", ")}\nStatus: ${p.status}\n\nHighlights:\n${p.highlights.map((h) => "• " + h).join("\n")}${cs}`;
 }
 
+/* ----------
+   Pitch composer
+   -----------
+   Triggered by evaluative questions ("why hire", "sell me", "strengths",
+   "what makes him different"). The portfolio data is mostly facts; the
+   pitch is where those facts get framed as value.
+
+   Each "point" is a claim the portfolio supports. The composer:
+     1. picks an opener
+     2. selects 3 points, weighted by what the query emphasises
+        (design/frontend/AI/velocity/etc. concepts boost matching points)
+     3. weaves in one concrete citation (project name + metric)
+     4. closes with a CTA if "hire" is in scope, else with a personality line
+   ---------- */
+
+const PITCH_OPENERS = [
+  "Honestly? Here's the pitch:",
+  "Short answer:",
+  "Three reasons:",
+  "Let me give you the case:",
+  "Okay — pitch mode:",
+];
+
+const PITCH_CLOSERS_HIRE = [
+  () => `If that lands, email ${contact.email} with a short brief — he replies fast.`,
+  () => `Want the deep-dive? Email ${contact.email} — he'll send a tailored intro.`,
+  () => `If the shape fits, ping ${contact.email} with what you're building.`,
+];
+
+const PITCH_CLOSERS_GENERIC = [
+  () => `Ask me about a specific project and i'll show receipts.`,
+  () => `Try "tell me about Neural Notes" — the metrics speak louder than the pitch.`,
+  () => `Skim the projects section for proof, or type "skills" for the full stack.`,
+];
+
+type PitchPoint = {
+  id: string;
+  tags: string[]; // concepts that boost this point
+  say: () => string;
+};
+
+const PITCH_POINTS: PitchPoint[] = [
+  {
+    id: "rare-combo",
+    tags: ["ai", "frontend", "hire"],
+    say: () =>
+      `Frontend craft + AI engineering in one person is a rare combo. Most AI devs ship ugly demos; most frontenders can't ship an LLM feature. He does both, in the same repo.`,
+  },
+  {
+    id: "velocity",
+    tags: ["project", "hire"],
+    say: () =>
+      `${stats.projectsShipped} projects shipped, ${stats.yearsCoding} years in. That's a steady cadence of finished work — not abandoned side projects, actual shipped things.`,
+  },
+  {
+    id: "craft",
+    tags: ["design", "frontend"],
+    say: () =>
+      `He cares about the millisecond of a hover, the weight of a shadow, the rhythm of type. That's literally his tagline, and you'll feel it in the sites he ships.`,
+  },
+  {
+    id: "ai-leverage",
+    tags: ["ai", "hire"],
+    say: () =>
+      `He codes with AI as a force multiplier, not a crutch — so he ships in days what used to take weeks, without the slop. That's throughput you can't fake.`,
+  },
+  {
+    id: "proof",
+    tags: ["ai", "project"],
+    say: () =>
+      `Concrete proof: on Neural Notes, a smart prompt-cache layer cut token costs ~60% without dropping quality. That's the kind of quiet engineering win he ships.`,
+  },
+  {
+    id: "typescript",
+    tags: ["frontend"],
+    say: () =>
+      `Strict TypeScript by default. Fewer bugs in prod, fewer 3am pages, less "works on my machine".`,
+  },
+  {
+    id: "articulation",
+    tags: ["hire", "design"],
+    say: () =>
+      `He writes case studies for his own work — breaking down the problem, the tradeoffs, the decisions. If he can articulate that in his portfolio, he'll articulate it in your standup.`,
+  },
+  {
+    id: "taste",
+    tags: ["design", "frontend"],
+    say: () =>
+      `Dark-first design, motion that respects context, copy that doesn't try too hard. Opinionated in the right ways, flexible on the rest.`,
+  },
+  {
+    id: "independence",
+    tags: ["hire"],
+    say: () =>
+      `He ships solo — you get one brain end-to-end, not a Jira ticket passed between three.`,
+  },
+  {
+    id: "frontier",
+    tags: ["ai"],
+    say: () =>
+      `He's not waiting for AI to "settle". He's in the terminal with Claude and GPT every day, shipping features most teams are still meeting about.`,
+  },
+];
+
+function pickPitchPoints(concepts: Set<string>): PitchPoint[] {
+  // score each point: +1 per tag that matches a query concept
+  const scored = PITCH_POINTS.map((p) => ({
+    p,
+    score: p.tags.reduce((s, t) => s + (concepts.has(t) ? 1 : 0), 0) + Math.random() * 0.4,
+  }));
+  scored.sort((a, b) => b.score - a.score);
+  // top 3 unique, ensuring at least one proof/citation
+  const picks: PitchPoint[] = [];
+  const proof = scored.find((s) => s.p.id === "proof" || s.p.id === "velocity")?.p;
+  if (proof) picks.push(proof);
+  for (const s of scored) {
+    if (picks.length >= 3) break;
+    if (!picks.includes(s.p)) picks.push(s.p);
+  }
+  return picks;
+}
+
+function composePitch(query: string): string {
+  const tokens = tokenize(query);
+  const concepts = conceptsFor(tokens);
+  const opener = PITCH_OPENERS[Math.floor(Math.random() * PITCH_OPENERS.length)];
+  const points = pickPitchPoints(concepts);
+  const body = points.map((p, i) => `${i + 1}. ${p.say()}`).join("\n\n");
+
+  const hireScope = concepts.has("hire");
+  const closers = hireScope ? PITCH_CLOSERS_HIRE : PITCH_CLOSERS_GENERIC;
+  const closer = closers[Math.floor(Math.random() * closers.length)]();
+
+  return `${opener}\n\n${body}\n\n${closer}`;
+}
+
 export function answer(q: string): string {
   const trimmed = q.trim();
   if (!trimmed) return greetings[0];
@@ -349,6 +495,9 @@ export function answer(q: string): string {
 
     case "hire":
       return `He's currently taking on freelance frontend + AI work. Best path: email ${contact.email} with a short brief (what, when, why). Reply within a day or two.`;
+
+    case "pitch":
+      return composePitch(trimmed);
 
     case "ai":
       return `AI/LLM work is a big part of what he does:\n• prompt design & optimization\n• retrieval + context engineering (see the Neural Notes case study)\n• AI-assisted development workflows\n• shipping with GPT-4, Claude, Gemini\n\nask about PromptForge or Neural Notes for concrete examples.`;
@@ -387,10 +536,10 @@ export function answer(q: string): string {
 }
 
 export const suggestedQuestions = [
-  "what does he do?",
-  "show me his projects",
+  "why should i hire him?",
+  "what makes him different?",
   "tell me about Neural Notes",
-  "is he available for hire?",
+  "show me his projects",
   "how do i contact him?",
 ];
 
