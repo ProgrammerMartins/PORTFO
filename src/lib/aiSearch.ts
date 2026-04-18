@@ -95,7 +95,7 @@ const SYNONYMS: Record<string, string[]> = {
   // evaluative / pitch signals — "why should i hire him", "sell me on him",
   // "what makes him different", "describe him", "is he the best", etc.
   pitch: ["why", "should", "pitch", "sell", "convince", "best", "strength",
-          "differ", "special", "uniqu", "stand", "amaz", "awesom", "describ",
+          "differ", "special", "uniqu", "stand", "amaz", "awesom", "describ", "capability",
           "impress", "compel", "reason", "recomm"],
 };
 
